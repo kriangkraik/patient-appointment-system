@@ -1,4 +1,4 @@
-package com.example.system.exceptions;
+package com.example.system.user.exception;
 
 public class UserAlreadyExistsException extends RuntimeException {
     public UserAlreadyExistsException(String message) {
