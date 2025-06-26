@@ -45,7 +45,9 @@ public class UserService {
         return userRepository.existsByUsername(username);
     }
 
-    public boolean isEmailTaken(String email) { return userRepository.existsByEmail(email); }
+    public boolean isEmailTaken(String email) {
+        return userRepository.existsByEmail(email);
+    }
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFullName(), user.getEmail())).toList();
