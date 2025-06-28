@@ -1,10 +1,10 @@
-package com.example.system.user.controller;
+package com.example.system.user.controllers;
 
-import com.example.system.user.dto.RegisterRequest;
-import com.example.system.user.entity.UpdateUserRequest;
-import com.example.system.user.entity.User;
-import com.example.system.user.entity.UserResponse;
-import com.example.system.user.service.UserService;
+import com.example.system.user.dtos.RegisterRequest;
+import com.example.system.user.entities.UpdateUserRequest;
+import com.example.system.user.entities.User;
+import com.example.system.user.entities.UserResponse;
+import com.example.system.user.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

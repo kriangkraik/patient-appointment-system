@@ -1,6 +1,6 @@
-package com.example.system.user.exception;
+package com.example.system.user.exceptions;
 
-import com.example.system.user.exception.api.ApiErrorResponse;
+import com.example.system.user.exceptions.api.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

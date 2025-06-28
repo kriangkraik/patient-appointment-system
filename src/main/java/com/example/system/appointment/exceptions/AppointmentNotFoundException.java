@@ -1,28 +1,28 @@
-package com.example.system.appointment.exception;
+package com.example.system.appointment.exceptions;
 
-public class AppointmentAlreadyExistsException extends RuntimeException {
+public class AppointmentNotFoundException extends RuntimeException {
     // Constructor รับ message
-    public AppointmentAlreadyExistsException(String message) {
+    public AppointmentNotFoundException(String message) {
         super(message);
     }
 
     // Constructor รับ message และ cause
-    public AppointmentAlreadyExistsException(String message, Throwable cause) {
+    public AppointmentNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
     // Constructor รับเฉพาะ cause
-    public AppointmentAlreadyExistsException(Throwable cause) {
+    public AppointmentNotFoundException(Throwable cause) {
         super(cause);
     }
 
     // Constructor แบบไม่มี parameter (optional)
-    public AppointmentAlreadyExistsException() {
+    public AppointmentNotFoundException() {
         super("Appointment not found");
     }
 
     // Constructor สำหรับรับ ID ที่ไม่พบ (optional แต่มีประโยชน์)
-    public AppointmentAlreadyExistsException(Long appointmentId) {
+    public AppointmentNotFoundException(Long appointmentId) {
         super("Appointment with ID " + appointmentId + " not found");
     }
 }

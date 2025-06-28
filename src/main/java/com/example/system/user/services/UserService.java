@@ -1,12 +1,12 @@
-package com.example.system.user.service;
+package com.example.system.user.services;
 
 import com.example.system.enums.AccountStatus;
 import com.example.system.enums.Role;
-import com.example.system.user.entity.UpdateUserRequest;
-import com.example.system.user.entity.User;
-import com.example.system.user.entity.UserResponse;
-import com.example.system.user.exception.UserAlreadyExistsException;
-import com.example.system.user.exception.UserNotFoundException;
+import com.example.system.user.entities.UpdateUserRequest;
+import com.example.system.user.entities.User;
+import com.example.system.user.entities.UserResponse;
+import com.example.system.user.exceptions.UserAlreadyExistsException;
+import com.example.system.user.exceptions.UserNotFoundException;
 import com.example.system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
