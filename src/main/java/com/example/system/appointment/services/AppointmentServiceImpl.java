@@ -4,21 +4,24 @@ import com.example.system.appointment.dtos.AppointmentRequest;
 import com.example.system.appointment.dtos.AppointmentResponse;
 import com.example.system.appointment.entity.Appointment;
 import com.example.system.appointment.exceptions.AppointmentNotFoundException;
-import com.example.system.appointment.exceptions.HospitalNameTooLongException;
-import com.example.system.appointment.exceptions.InvalidAppointmentDateException;
 import com.example.system.appointment.repository.AppointmentRepository;
 import com.example.system.enums.AppointmentStatus;
 import com.example.system.user.entities.User;
 import com.example.system.user.exceptions.UserNotFoundException;
 import com.example.system.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Validated
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
@@ -27,14 +30,26 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserRepository userRepository;
 
     @Override
-    public AppointmentResponse createAppointment(AppointmentRequest request) {
+    @Transactional
+    public AppointmentResponse createAppointment(@Valid AppointmentRequest request) {
         Appointment appointment = mapToEntity(request);
+        appointment.setDocId(generateDocId());
         return mapToResponse(appointmentRepository.save(appointment));
     }
 
     @Override
     public AppointmentResponse getAppointmentById(Long id) {
-        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
+        Appointment appointment = appointmentRepository
+                .findById(id)
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
+        return mapToResponse(appointment);
+    }
+
+    @Override
+    public AppointmentResponse getAppointmentByDocId(String docId) {
+        Appointment appointment = appointmentRepository.findByDocId(docId)
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with Doc ID: " + docId));
+
         return mapToResponse(appointment);
     }
 
@@ -44,7 +59,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponse updateAppointmentById(Long id, AppointmentRequest request) {
+    public AppointmentResponse updateAppointmentById(Long id, @Valid AppointmentRequest request) {
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
 
         appointment.setAppointmentDate(request.getAppointmentDate());
@@ -70,15 +85,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     // ----------------- Mapping Methods -----------------
-    private Appointment mapToEntity(AppointmentRequest request) {
-        if (request.getAppointmentDate().isBefore(LocalDateTime.now())) {
-            throw new InvalidAppointmentDateException(request.getAppointmentDate());
-        }
-
-        if (request.getHospitalName().length() > Appointment.MAX_HOSPITAL_NAME_LENGTH) {
-            throw new HospitalNameTooLongException(Appointment.MAX_HOSPITAL_NAME_LENGTH);
-        }
-
+    private Appointment mapToEntity(@Valid AppointmentRequest request) {
         User patient = userRepository.findById(request.getPatientId()).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getPatientId()));
 
         Appointment appointment = new Appointment();
@@ -122,9 +129,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         return mapToResponse(appointmentRepository.save(appointment));
     }
 
+    private String generateDocId(Appointment appointment) {
+        String datePart = appointment.getAppointmentDate().toLocalDate().toString().replace("-", "");
+        return String.format("APT-%s-%06d", datePart, appointment.getId());
+    }
 
-
-
-
-
+    private String generateDocId() {
+        return "APT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
 }

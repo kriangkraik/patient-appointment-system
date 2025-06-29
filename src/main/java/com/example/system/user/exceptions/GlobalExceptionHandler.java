@@ -1,6 +1,6 @@
 package com.example.system.user.exceptions;
 
-import com.example.system.user.exceptions.api.ApiErrorResponse;
+/*import com.example.system.user.exceptions.api.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,4 +39,4 @@ public class GlobalExceptionHandler {
         ApiErrorResponse error = new ApiErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Unexpected error occurred: " + ex.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+}*/

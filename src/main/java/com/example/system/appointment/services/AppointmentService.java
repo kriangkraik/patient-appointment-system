@@ -11,6 +11,8 @@ public interface AppointmentService {
 
     AppointmentResponse getAppointmentById(Long id);
 
+    AppointmentResponse getAppointmentByDocId(String docId);
+
     List<AppointmentResponse> getAllAppointments();
 
     AppointmentResponse updateAppointmentById(Long id, AppointmentRequest request);
