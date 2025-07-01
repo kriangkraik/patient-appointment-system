@@ -3,6 +3,8 @@ package com.example.system.appointment.repository;
 import com.example.system.appointment.entity.Appointment;
 import com.example.system.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -24,4 +26,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByAppointmentDateBeforeAndStatus(LocalDateTime now, AppointmentStatus status);
 
     Optional<Appointment> findByDocId(String docId);
+
+    @Query("""
+                SELECT a FROM Appointment a 
+                WHERE a.patient.id = :patientId 
+                  AND a.appointmentDate BETWEEN :start AND :end
+            """)
+    List<Appointment> findConflictingAppointments(
+            @Param("patientId") Long patientId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
 }

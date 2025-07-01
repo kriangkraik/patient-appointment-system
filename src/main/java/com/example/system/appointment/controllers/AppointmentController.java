@@ -17,9 +17,6 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
-    /**
-     * สร้างการนัดหมายใหม่
-     */
     @PostMapping
     public ResponseEntity<AppointmentResponse> createAppointment(
             @Valid @RequestBody AppointmentRequest request) {
@@ -28,26 +25,22 @@ public class AppointmentController {
         return ResponseEntity.ok(created);
     }
 
-    /**
-     * ดึงข้อมูลนัดหมายตาม ID
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
+    @GetMapping("/id/{id}")
+    public ResponseEntity<AppointmentResponse> getAppointmentById(@Valid @PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
-    /**
-     * ดึงการนัดหมายทั้งหมด
-     */
+    @GetMapping("/doc/{docId}")
+    public ResponseEntity<AppointmentResponse> getAppointmentByDocId(@Valid @PathVariable String docId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentByDocId(docId));
+    }
+
     @GetMapping
     public ResponseEntity<List<AppointmentResponse>> getAllAppointments() {
         return ResponseEntity.ok(appointmentService.getAllAppointments());
     }
 
-    /**
-     * อัปเดตการนัดหมายตาม ID
-     */
-    @PutMapping("/{id}")
+    @PutMapping("/id/{id}")
     public ResponseEntity<AppointmentResponse> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentRequest request) {
@@ -56,12 +49,10 @@ public class AppointmentController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * ลบการนัดหมายตาม ID
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteAppointment(@Valid @PathVariable Long id) {
         appointmentService.deleteAppointmentById(id);
         return ResponseEntity.noContent().build();
     }
+
 }
