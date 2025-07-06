@@ -50,7 +50,9 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream().map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFullName(), user.getEmail())).toList();
+        return userRepository.findAll()
+                .stream()
+                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getFullName(), user.getEmail())).toList();
     }
 
     public UserResponse getUserById(Long id) {

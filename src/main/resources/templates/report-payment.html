@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @font-face {
+          font-family: 'thsarabun';
+          src: url('file:fonts/THSarabunNew.ttf');
+        }
+        body { font-family: 'thsarabun', sans-serif; font-size: 14pt; }
+        h1   { text-align: center; margin-bottom: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em;}
+        th, td { border: 1px solid #aaa; padding: 4px; text-align: left; }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+<h1>ใบรายงานการชำระเงิน (Report Payment)</h1>
+
+<p>
+    <strong>เลขที่เอกสาร:</strong> <span th:text="${docNo}"/> <br/>
+    <strong>วันที่ออกเอกสาร:</strong> <span th:text="${dateCreated}"/> <br/>
+    <strong>ผู้ชำระเงิน:</strong> <span th:text="${userName}"/>
+</p>
+
+<table>
+    <tr>
+        <th>สกุลเงิน</th>
+        <th class="right">ยอดเงิน</th>
+        <th>วิธีชำระ</th>
+        <th>สถานะ</th>
+    </tr>
+    <tr>
+        <td th:text="${currency}"/>
+        <td class="right" th:text="${#numbers.formatDecimal(amount, 2, 'COMMA', 2, 'POINT')}"/>
+        <td th:text="${paymentMethod}"/>
+        <td th:text="${status}"/>
+    </tr>
+</table>
+
+<p th:if="${notes} != null">
+    <strong>หมายเหตุ:</strong> <span th:text="${notes}"/>
+</p>
+
+<p style="text-align:right; margin-top: 3em;">
+    .............................................. <br/>
+    (ผู้อนุมัติ)
+</p>
+</body>
+</html>
