@@ -6,7 +6,7 @@ import com.example.system.report.dtos.ReportPaymentResponse;
 import com.example.system.report.entities.ReportPayment;
 import com.example.system.report.exceptions.ReportPaymentNotFoundException;
 import com.example.system.report.mapper.ReportPaymentMapper;
-import com.example.system.report.repository.ReportPaymentRepository;
+import com.example.system.report.repositories.ReportPaymentRepository;
 import com.example.system.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

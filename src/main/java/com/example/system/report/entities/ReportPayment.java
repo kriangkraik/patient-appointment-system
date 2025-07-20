@@ -22,27 +22,33 @@ import java.util.Currency;
 @AllArgsConstructor
 public class ReportPayment {
 
+    private static final int MAX_DOCNUMBER_LENGTH = 30;
+    private static final int MAX_CURRENCY_LENGTH = 3;
+    private static final int MAX_PAYMENTMETHOD_LENGTH = 20;
+    private static final int MAX_STATUS_LENGTH = 20;
+    private static final int MAX_NOTES_LENGTH = 1000;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, unique = true, length = MAX_DOCNUMBER_LENGTH)
     private String docNo;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
-    @Column(nullable = false, length = 3)
+    @Column(nullable = false, length = MAX_CURRENCY_LENGTH)
     private Currency currency;
 
     private Double amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = MAX_PAYMENTMETHOD_LENGTH)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = MAX_STATUS_LENGTH)
     private PaymentStatus status;
 
     @CreatedDate
@@ -54,7 +60,6 @@ public class ReportPayment {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(length = 1000)
+    @Column(length = MAX_NOTES_LENGTH)
     private String notes;
-
 }

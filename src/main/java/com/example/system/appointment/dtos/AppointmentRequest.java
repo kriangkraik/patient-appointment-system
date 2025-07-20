@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class AppointmentRequest {
+
+    private static final int MAX_HOSPITAL_NAME_LENGTH = 100;
+    private static final int MAX_REASON_LENGTH = 500;
+
     @NotNull
     private Long patientId;
 
@@ -19,10 +23,10 @@ public class AppointmentRequest {
     private LocalDateTime appointmentDate;
 
     @NotBlank
-    @Size(max = 100)
+    @Size(max = MAX_HOSPITAL_NAME_LENGTH)
     private String hospitalName;
 
-    @Size(max = 500)
+    @Size(max = MAX_REASON_LENGTH)
     private String reason;
 
     @NotNull

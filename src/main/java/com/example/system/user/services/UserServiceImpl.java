@@ -2,43 +2,56 @@ package com.example.system.user.services;
 
 import com.example.system.enums.AccountStatus;
 import com.example.system.enums.Role;
-import com.example.system.user.entities.UpdateUserRequest;
+import com.example.system.user.dtos.RegisterRequest;
+import com.example.system.user.dtos.UpdateUserRequest;
+import com.example.system.user.dtos.UserResponse;
 import com.example.system.user.entities.User;
-import com.example.system.user.entities.UserResponse;
 import com.example.system.user.exceptions.UserAlreadyExistsException;
 import com.example.system.user.exceptions.UserNotFoundException;
+import com.example.system.user.mapper.UserMapper;
 import com.example.system.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper mapper;
 
-    public User register(User user) {
-        if (isUsernameTaken(user.getUsername())) {
+    public UserResponse register(RegisterRequest dto) {
+        log.trace("→ register(dto={})", dto);
+
+        // 1.) Map DTO -> Entity
+        User entity = mapper.toEntity(dto);
+
+        // 2.) Input Data
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        entity.setRole(Role.PATIENT);
+        entity.setAccountStatus(AccountStatus.ACTIVE);
+
+        // 3.) Save Database
+        User saved = userRepository.save(entity);
+        log.info("New user registered: id={}, username={}", saved.getId(), saved.getUsername());
+
+        return mapper.toResponse(saved);       // ส่งข้อมูลที่จำเป็นเท่านั้น
+    }
+
+    private void validateUniqueness(RegisterRequest dto) {
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            log.warn("Registration failed: username '{}' already taken", dto.getUsername());
             throw new UserAlreadyExistsException("Username already taken");
         }
-
-        if (isEmailTaken(user.getEmail())) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            log.warn("Registration failed: email '{}' already taken", dto.getEmail());
             throw new UserAlreadyExistsException("Email already registered");
         }
-
-        if (!StringUtils.hasText(user.getPassword())) {
-            throw new IllegalArgumentException("Password cannot be blank");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.PATIENT); // ตั้งค่า default role
-        user.setAccountStatus(AccountStatus.ACTIVE); // ตั้งสถานะบัญชีเริ่มต้น
-
-        return userRepository.save(user);
     }
 
     public boolean isUsernameTaken(String username) {

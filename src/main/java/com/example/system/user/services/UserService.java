@@ -1,13 +1,13 @@
 package com.example.system.user.services;
 
-import com.example.system.user.entities.UpdateUserRequest;
-import com.example.system.user.entities.User;
-import com.example.system.user.entities.UserResponse;
+import com.example.system.user.dtos.RegisterRequest;
+import com.example.system.user.dtos.UpdateUserRequest;
+import com.example.system.user.dtos.UserResponse;
 
 import java.util.List;
 
 public interface UserService {
-    User register(User user);
+    UserResponse register(RegisterRequest dto);
 
     boolean isUsernameTaken(String username);
 

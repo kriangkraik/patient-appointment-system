@@ -1,4 +1,4 @@
-package com.example.system.report.repository;
+package com.example.system.report.repositories;
 
 import com.example.system.report.entities.ReportPayment;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.example.system.report.controller;
+package com.example.system.report.controllers;
 
 import com.example.system.report.services.ReportPaymentService;
 import lombok.RequiredArgsConstructor;

@@ -24,11 +24,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReportAppointment {
 
+    private static final int MAX_DOCNUMBER_LENGTH = 30;
+    private static final int MAX_REASON_LENGTH = 255;
+    private static final int MAX_HOSPITALNAME_LENGTH = 100;
+    private static final int MAX_APPOINTMENTSTATUS_LENGTH = 15;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, unique = true, length = MAX_DOCNUMBER_LENGTH)
     private String docNo;
 
     @Column(nullable = false)
@@ -38,15 +43,15 @@ public class ReportAppointment {
     private Appointment appointment;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 15)
+    @Column(length = MAX_APPOINTMENTSTATUS_LENGTH)
     private AppointmentStatus status;
 
     private LocalDateTime appointmentDateTime;
 
-    @Column(length = 120)
+    @Column(length = MAX_HOSPITALNAME_LENGTH)
     private String hospitalName;
 
-    @Column(length = 255)
+    @Column(length = MAX_REASON_LENGTH)
     private String reason;
 
     private Double totalCharge;
