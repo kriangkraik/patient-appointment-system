@@ -2,7 +2,7 @@ package com.example.system.appointment.entity;
 
 import com.example.system.enums.AppointmentStatus;
 import com.example.system.user.entities.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -25,21 +25,18 @@ import java.time.LocalDateTime;
 @Table(name = "appointments")
 public class Appointment {
 
-    private static final int MAX_HOSPITAL_NAME_LENGTH = 100;
-    private static final int MAX_STATUS_LENGTH = 20;
-    private static final int MAX_REASON_LENGTH = 500;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 50)
     private String docId;
 
     /**
      * The patient who made the appointment.
      */
     @ToString.Exclude
-    @JsonIgnoreProperties({"appointments"})
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     @NotNull
@@ -56,24 +53,30 @@ public class Appointment {
     /**
      * Hospital name where appointment is scheduled.
      */
-    @Column(name = "hospital_name", nullable = false, length = MAX_HOSPITAL_NAME_LENGTH)
+    @Column(name = "hospital_name", nullable = false, length = 100)
     @NotBlank
-    @Size(max = MAX_HOSPITAL_NAME_LENGTH)
+    @Size(max = 100)
     private String hospitalName;
 
     /**
      * Optional reason for appointment.
      */
-    @Lob
-    @Column(nullable = true)
-    @Size(max = MAX_REASON_LENGTH)
+    @Column(nullable = true, length = 500)
+    @Size(max = 500)
     private String reason;
 
     /**
      * Status of the appointment.
      */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = MAX_STATUS_LENGTH)
+    @Column(nullable = false, length = 20)
     @NotNull
     private AppointmentStatus status;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = AppointmentStatus.PENDING;
+        }
+    }
 }

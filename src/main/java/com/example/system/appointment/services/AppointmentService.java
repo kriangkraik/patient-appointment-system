@@ -4,11 +4,11 @@ import com.example.system.appointment.dtos.AppointmentRequest;
 import com.example.system.appointment.dtos.AppointmentResponse;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Validated
 public interface AppointmentService {
-
     AppointmentResponse createAppointment(AppointmentRequest request);
 
     AppointmentResponse getAppointmentById(Long id);
@@ -19,6 +19,7 @@ public interface AppointmentService {
 
     AppointmentResponse updateAppointmentById(Long id, AppointmentRequest request);
 
-    void deleteAppointmentById(Long id);
+    AppointmentResponse rescheduleAppointment(Long id, LocalDateTime newDateTime);
 
+    void deleteAppointmentById(Long id);
 }

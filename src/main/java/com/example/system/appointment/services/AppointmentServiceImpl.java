@@ -4,6 +4,7 @@ import com.example.system.appointment.dtos.AppointmentRequest;
 import com.example.system.appointment.dtos.AppointmentResponse;
 import com.example.system.appointment.entity.Appointment;
 import com.example.system.appointment.exceptions.AppointmentNotFoundException;
+import com.example.system.appointment.mapper.AppointmentMapper;
 import com.example.system.appointment.repository.AppointmentRepository;
 import com.example.system.enums.AppointmentStatus;
 import com.example.system.user.entities.User;
@@ -23,53 +24,57 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
 
-    private final AppointmentRepository appointmentRepository;
-    private final UserRepository userRepository;
+    private final AppointmentRepository appointmentRepo;
+    private final UserRepository userRepo;
+    private final AppointmentMapper mapper;
 
     @Override
     @Transactional
-    public AppointmentResponse createAppointment(AppointmentRequest request) {
-        Appointment appointment = mapToEntity(request);
+    public AppointmentResponse createAppointment(AppointmentRequest req) {
+        Appointment entity = mapper.toEntity(req);
+
+        entity.setPatient(userRepo.findById(req.getPatientId())
+                .orElseThrow(() -> new AppointmentNotFoundException("Patient")));
 
         // ***** Check DoubleBooking *****
-        LocalDateTime start = request.getAppointmentDate().minusMinutes(30);
-        LocalDateTime end = request.getAppointmentDate().plusMinutes(30);
+        LocalDateTime start = req.getAppointmentDate().minusMinutes(30);
+        LocalDateTime end = req.getAppointmentDate().plusMinutes(30);
 
-        boolean isConflict = !appointmentRepository.findConflictingAppointments(appointment.getId(), start, end).isEmpty();
+        boolean isConflict = !appointmentRepo.findConflictingAppointments(entity.getId(), start, end).isEmpty();
 
         if (isConflict) {
             throw new IllegalArgumentException("You already have an appointment around this time.");
         }
         // ***** End Check DoubleBooking *****
-
-        appointment.setDocId(generateDocId());
-        return mapToResponse(appointmentRepository.save(appointment));
+        entity.setDocId(generateDocId());
+        Appointment saved = appointmentRepo.save(entity);
+        return mapper.toDto(saved);
     }
 
     @Override
     public AppointmentResponse getAppointmentById(Long id) {
-        Appointment appointment = appointmentRepository
+        Appointment appointment = appointmentRepo
                 .findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
-        return mapToResponse(appointment);
+        return mapper.toDto(appointment);
     }
 
     @Override
     public AppointmentResponse getAppointmentByDocId(String docId) {
-        Appointment appointment = appointmentRepository.findByDocId(docId)
+        Appointment appointment = appointmentRepo.findByDocId(docId)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with Doc ID: " + docId));
 
-        return mapToResponse(appointment);
+        return mapper.toDto(appointment);
     }
 
     @Override
     public List<AppointmentResponse> getAllAppointments() {
-        return appointmentRepository.findAll().stream().map(this::mapToResponse).toList();
+        return mapper.toDtoList(appointmentRepo.findAll());
     }
 
     @Override
     public AppointmentResponse updateAppointmentById(Long id, AppointmentRequest request) {
-        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
+        Appointment appointment = appointmentRepo.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with ID: " + id));
 
         appointment.setAppointmentDate(request.getAppointmentDate());
         appointment.setHospitalName(request.getHospitalName());
@@ -78,24 +83,24 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // อัปเดต patient ถ้ามีการเปลี่ยน
         if (!appointment.getPatient().getId().equals(request.getPatientId())) {
-            User newPatient = userRepository.findById(request.getPatientId()).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getPatientId()));
+            User newPatient = userRepo.findById(request.getPatientId()).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getPatientId()));
             appointment.setPatient(newPatient);
         }
 
-        return mapToResponse(appointmentRepository.save(appointment));
+        return mapper.toDto(appointmentRepo.save(appointment));
     }
 
     @Override
     public void deleteAppointmentById(Long id) {
-        if (!appointmentRepository.existsById(id)) {
+        if (!appointmentRepo.existsById(id)) {
             throw new AppointmentNotFoundException("Appointment not found with ID: " + id);
         }
-        appointmentRepository.deleteById(id);
+        appointmentRepo.deleteById(id);
     }
 
     // ----------------- Mapping Methods -----------------
     private Appointment mapToEntity(AppointmentRequest request) {
-        User patient = userRepository.findById(request.getPatientId())
+        User patient = userRepo.findById(request.getPatientId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getPatientId()));
 
         Appointment appointment = new Appointment();
@@ -108,46 +113,51 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointment;
     }
 
-    private AppointmentResponse mapToResponse(Appointment appointment) {
-        return new AppointmentResponse(
-                appointment.getId(),
-                appointment.getPatient().getId(),
-                appointment.getPatient().getFullName(),
-                appointment.getAppointmentDate(),
-                appointment.getHospitalName(),
-                appointment.getReason(),
-                appointment.getStatus()
-        );
-    }
-
     public List<AppointmentResponse> findUpcomingAppointmentsForUser(Long userId) {
-        return appointmentRepository.findByPatientIdAndAppointmentDateAfter(
-                userId, LocalDateTime.now()).stream().map(this::mapToResponse).toList();
+        return mapper.toDtoList(
+                appointmentRepo.findByPatientIdAndAppointmentDateAfter(
+                        userId, LocalDateTime.now()
+                )
+        );
+
+//        return appointmentRepo.findByPatientIdAndAppointmentDateAfter(
+//                userId, LocalDateTime.now()).stream().map(mapper::toDto).toList();
     }
 
     public List<AppointmentResponse> findAppointmentsInRange(LocalDateTime start, LocalDateTime end) {
-        return appointmentRepository.findByAppointmentDateBetween(start, end).stream().map(this::mapToResponse).toList();
+        return mapper.toDtoList(
+                appointmentRepo.findByAppointmentDateBetween(start, end)
+        );
+
+        //return appointmentRepo.findByAppointmentDateBetween(start, end).stream().map(mapper::toDto).toList();
     }
 
     public Map<AppointmentStatus, Long> countAppointmentsByStatus() {
-        return appointmentRepository.findAll().stream().collect(
+        return appointmentRepo.findAll().stream().collect(
                 Collectors.groupingBy(Appointment::getStatus, Collectors.counting()));
     }
 
     public boolean isPatientAvailable(Long userId, LocalDateTime dateTime) {
-        return appointmentRepository.findByPatientIdAndAppointmentDate(userId, dateTime).isEmpty();
+        return appointmentRepo.findByPatientIdAndAppointmentDate(userId, dateTime).isEmpty();
     }
 
     public List<AppointmentResponse> findOverdueAppointments() {
-        return appointmentRepository.findByAppointmentDateBeforeAndStatus(
-                LocalDateTime.now(), AppointmentStatus.PENDING).stream().map(this::mapToResponse).toList();
+        return mapper.toDtoList(
+                appointmentRepo.findByAppointmentDateBeforeAndStatus(
+                        LocalDateTime.now(), AppointmentStatus.PENDING
+                )
+        );
+
+
+//        return appointmentRepo.findByAppointmentDateBeforeAndStatus(
+//                LocalDateTime.now(), AppointmentStatus.PENDING).stream().map(mapper::toDto).toList();
     }
 
     public AppointmentResponse rescheduleAppointment(Long id, LocalDateTime newDateTime) {
-        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
+        Appointment appointment = appointmentRepo.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
 
         appointment.setAppointmentDate(newDateTime);
-        return mapToResponse(appointmentRepository.save(appointment));
+        return mapper.toDto(appointmentRepo.save(appointment));
     }
 
     private String generateDocId(Appointment appointment) {

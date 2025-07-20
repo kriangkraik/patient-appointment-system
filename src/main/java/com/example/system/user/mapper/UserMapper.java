@@ -14,6 +14,6 @@ public interface UserMapper {
     UserResponse toResponse(User entity);
 
     @Mapping(target = "password", ignore = true)
-        // ไม่ทับ hash เดิม
+// ไม่ทับ hash เดิม
     void updateUser(RegisterRequest dto, @MappingTarget User entity);
 }
