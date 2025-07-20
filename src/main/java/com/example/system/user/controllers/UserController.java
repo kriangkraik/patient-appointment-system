@@ -1,8 +1,8 @@
 package com.example.system.user.controllers;
 
 import com.example.system.user.dtos.RegisterRequest;
+import com.example.system.user.dtos.UpdateUserRequest;
 import com.example.system.user.dtos.UserResponse;
-import com.example.system.user.entities.User;
 import com.example.system.user.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +19,8 @@ public class UserController {
 
     // Register a new user
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-
-        User registeredUser = userService.register(user);
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+        UserResponse registeredUser = userService.register(request);
         return ResponseEntity.ok(registeredUser);
     }
 
